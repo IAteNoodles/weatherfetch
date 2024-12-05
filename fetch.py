@@ -8,13 +8,9 @@ import time
 
 from dotenv import load_dotenv
 load_dotenv()
-VisualCrossing_API_Key = os.getenv("VisualCrossing_API_Key")
-Redis_Key = os.getenv("Redis_Key")
 
-Redis_Host = os.getenv("Redis_Host")
 
-if not VisualCrossing_API_Key:
-    raise ValueError("VisualCrossing_API_Key not found")
+
 
 import argparse
 parser = argparse.ArgumentParser(description="Fetch weather data using various apis")
@@ -22,6 +18,11 @@ parser.add_argument("location",
                     type=str,
                     help="""The location of the place, could be partial address
 Accepts coordinates in the form latitude,longitude"""
+)
+parser.add_argument(
+    "--api-key",
+    type=str,
+    help="Provide your API key for authentication. Overrides the key in the .env file if present."
 )
 parser.add_argument("--start", type=str, default="", help="The start date (YYYY-MM-DD)")
 parser.add_argument("--end", type=str, default="", help="The end date (YYYY-MM-DD)")
@@ -31,6 +32,7 @@ parser.add_argument(
     action="store_true", 
     help="Fetch data directly from the API, ignoring the cache."
 )
+
 parser.add_argument("--do-not-cache",
     action="store_false",
     help="Does not store the current request in cache")
@@ -51,6 +53,14 @@ except ValueError:
     exit(1)
 
 # Parse data
+
+VisualCrossing_API_Key = args.api_key or os.getenv("VisualCrossing_API_Key")
+
+Redis_Key = os.getenv("Redis_Key")
+Redis_Host = os.getenv("Redis_Host")
+
+if not VisualCrossing_API_Key:
+    raise ValueError("VisualCrossing_API_Key not found")
 
 location = args.location
 start_date = args.start
